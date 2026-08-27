@@ -3,8 +3,8 @@
 import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useState, useMemo } from 'react';
-import { getProductBySlug, PRODUCTS } from '@/data/products';
+import { useState, useMemo, useEffect } from 'react';
+import { useProducts } from '@/store/products';
 import { useCart } from '@/store/cart';
 import { formatGHS } from '@/lib/utils';
 import { ProductCard } from '@/components/ProductCard';
@@ -14,12 +14,19 @@ import { Minus, Plus, ShoppingBag, ArrowLeft } from 'lucide-react';
 export default function ProductPage() {
   const params = useParams();
   const slug = params.slug as string;
-  const product = getProductBySlug(slug);
+  const { getBySlug, products, loading } = useProducts();
+  const product = getBySlug(slug);
   const { add } = useCart();
   const router = useRouter();
 
-  const [variantId, setVariantId] = useState(product?.variants?.[0]?.id || '');
+  const [variantId, setVariantId] = useState('');
   const [qty, setQty] = useState(1);
+
+  useEffect(() => {
+    if (product?.variants?.[0]) setVariantId(product.variants[0].id);
+    else setVariantId('');
+    setQty(1);
+  }, [product]);
 
   const selectedVariant = useMemo(
     () => product?.variants?.find((v) => v.id === variantId),
@@ -28,6 +35,10 @@ export default function ProductPage() {
 
   const price = selectedVariant?.price ?? product?.price ?? 0;
   const stock = selectedVariant?.stock ?? 99;
+
+  if (loading) {
+    return <div className="p-8 text-center text-zinc-500">Loading...</div>;
+  }
 
   if (!product) {
     return (
@@ -40,7 +51,9 @@ export default function ProductPage() {
     );
   }
 
-  const related = PRODUCTS.filter((p) => p.category === product.category && p.id !== product.id).slice(0, 4);
+  const related = products
+    .filter((p) => p.category === product.category && p.id !== product.id)
+    .slice(0, 4);
 
   const handleAdd = () => {
     add({
@@ -69,7 +82,14 @@ export default function ProductPage() {
 
       <div className="grid gap-8 md:grid-cols-2">
         <div className="relative aspect-square overflow-hidden rounded-2xl bg-zinc-100">
-          <Image src={product.image} alt={product.name} fill className="object-cover" sizes="(max-width: 768px) 100vw, 50vw" priority />
+          <Image
+            src={product.image}
+            alt={product.name}
+            fill
+            className="object-cover"
+            sizes="(max-width: 768px) 100vw, 50vw"
+            priority
+          />
         </div>
 
         <div>

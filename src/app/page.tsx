@@ -1,16 +1,19 @@
+'use client';
+
 import Link from 'next/link';
 import { ProductCard } from '@/components/ProductCard';
-import { getFeatured, getFlash, CATEGORIES } from '@/data/products';
+import { useProducts } from '@/store/products';
+import { CATEGORIES } from '@/data/products';
 import { STORE } from '@/lib/config';
 import { ArrowRight, Truck, Shield, Headphones } from 'lucide-react';
 
 export default function HomePage() {
+  const { getFeatured, getFlash, loading } = useProducts();
   const featured = getFeatured();
   const flash = getFlash();
 
   return (
     <div>
-      {/* Hero */}
       <section className="relative overflow-hidden bg-zinc-950 text-white">
         <div className="mx-auto flex max-w-6xl flex-col items-start gap-6 px-4 py-20 md:py-28">
           <p className="text-sm font-medium uppercase tracking-widest text-gold">Ghana Premium Drip</p>
@@ -18,7 +21,8 @@ export default function HomePage() {
             Drip For Kings<br />and Queens
           </h1>
           <p className="max-w-lg text-zinc-400">
-            Luxury chains, watches, clothes & more. Pay with MTN MoMo. Free delivery on orders over GHS {STORE.freeDeliveryThreshold}.
+            Luxury chains, watches, clothes & more. Pay with MTN MoMo. Free delivery on orders over GHS{' '}
+            {STORE.freeDeliveryThreshold}.
           </p>
           <div className="flex flex-wrap gap-3">
             <Link
@@ -37,7 +41,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Trust */}
       <section className="border-b border-zinc-200 bg-white">
         <div className="mx-auto grid max-w-6xl grid-cols-1 gap-6 px-4 py-8 sm:grid-cols-3">
           <div className="flex items-center gap-3">
@@ -64,7 +67,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Categories */}
       <section className="mx-auto max-w-6xl px-4 py-12">
         <h2 className="mb-6 text-2xl font-bold">Shop by Category</h2>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-6">
@@ -80,8 +82,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Flash */}
-      {flash.length > 0 && (
+      {!loading && flash.length > 0 && (
         <section className="bg-orange/5 py-12">
           <div className="mx-auto max-w-6xl px-4">
             <div className="mb-6 flex items-center justify-between">
@@ -99,7 +100,6 @@ export default function HomePage() {
         </section>
       )}
 
-      {/* Featured */}
       <section className="mx-auto max-w-6xl px-4 py-12">
         <div className="mb-6 flex items-center justify-between">
           <h2 className="text-2xl font-bold">Featured Drip</h2>
@@ -107,14 +107,19 @@ export default function HomePage() {
             View all
           </Link>
         </div>
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-          {featured.map((p) => (
-            <ProductCard key={p.id} product={p} />
-          ))}
-        </div>
+        {loading ? (
+          <p className="text-zinc-500">Loading...</p>
+        ) : featured.length === 0 ? (
+          <p className="text-zinc-500">No featured products yet.</p>
+        ) : (
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+            {featured.map((p) => (
+              <ProductCard key={p.id} product={p} />
+            ))}
+          </div>
+        )}
       </section>
 
-      {/* CTA */}
       <section className="mx-auto max-w-6xl px-4 pb-16">
         <div className="rounded-3xl bg-zinc-950 px-6 py-12 text-center text-white md:px-12">
           <h2 className="text-2xl font-bold md:text-3xl">Ready to level up your look?</h2>

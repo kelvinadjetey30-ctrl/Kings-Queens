@@ -22,7 +22,6 @@ export default function CheckoutPage() {
   const [region, setRegion] = useState('Greater Accra');
   const [city, setCity] = useState('');
   const [address, setAddress] = useState('');
-  const [deliveryType, setDeliveryType] = useState<'standard' | 'express'>('standard');
   const [txId, setTxId] = useState('');
   const [copied, setCopied] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -39,11 +38,8 @@ export default function CheckoutPage() {
   }
 
   const isAccra = region === 'Greater Accra';
-  let deliveryFee = 0;
-  if (total < STORE.freeDeliveryThreshold) {
-    if (deliveryType === 'express' && isAccra) deliveryFee = STORE.expressAccra;
-    else deliveryFee = isAccra ? STORE.deliveryAccra : STORE.deliveryOutside;
-  }
+  const deliveryFee =
+    total >= STORE.freeDeliveryThreshold ? 0 : isAccra ? STORE.deliveryAccra : STORE.deliveryOutside;
   const grandTotal = total + deliveryFee;
 
   const copyMoMo = async () => {
@@ -110,14 +106,17 @@ export default function CheckoutPage() {
     <div className="mx-auto max-w-2xl px-4 py-8">
       <h1 className="mb-6 text-3xl font-bold">Checkout</h1>
 
-      {/* Steps */}
       <div className="mb-8 flex gap-2 text-sm">
         {[1, 2, 3].map((s) => (
           <button
             key={s}
             onClick={() => s < step && setStep(s)}
             className={`flex-1 rounded-full py-2 text-center font-medium ${
-              step === s ? 'bg-zinc-900 text-white' : step > s ? 'bg-gold/20 text-zinc-800' : 'bg-zinc-100 text-zinc-400'
+              step === s
+                ? 'bg-zinc-900 text-white'
+                : step > s
+                  ? 'bg-gold/20 text-zinc-800'
+                  : 'bg-zinc-100 text-zinc-400'
             }`}
           >
             {s === 1 ? 'Details' : s === 2 ? 'Delivery' : 'Payment'}
@@ -189,37 +188,15 @@ export default function CheckoutPage() {
             rows={3}
             className="w-full rounded-lg border border-zinc-200 px-3 py-2.5 text-sm outline-none focus:border-gold"
           />
-          <div className="space-y-2">
-            <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-zinc-200 p-3">
-              <input
-                type="radio"
-                checked={deliveryType === 'standard'}
-                onChange={() => setDeliveryType('standard')}
-              />
-              <div className="flex-1">
-                <p className="text-sm font-medium">Standard delivery</p>
-                <p className="text-xs text-zinc-500">
-                  {total >= STORE.freeDeliveryThreshold
-                    ? 'FREE'
-                    : isAccra
-                      ? formatGHS(STORE.deliveryAccra)
-                      : formatGHS(STORE.deliveryOutside)}
-                </p>
-              </div>
-            </label>
-            {isAccra && total < STORE.freeDeliveryThreshold && (
-              <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-zinc-200 p-3">
-                <input
-                  type="radio"
-                  checked={deliveryType === 'express'}
-                  onChange={() => setDeliveryType('express')}
-                />
-                <div className="flex-1">
-                  <p className="text-sm font-medium">Express (Accra)</p>
-                  <p className="text-xs text-zinc-500">{formatGHS(STORE.expressAccra)} — same/next day</p>
-                </div>
-              </label>
-            )}
+          <div className="rounded-lg border border-zinc-200 bg-zinc-50 p-3">
+            <p className="text-sm font-medium">Standard delivery</p>
+            <p className="text-xs text-zinc-500">
+              {total >= STORE.freeDeliveryThreshold
+                ? 'FREE (order above threshold)'
+                : isAccra
+                  ? `${formatGHS(STORE.deliveryAccra)} — Greater Accra`
+                  : `${formatGHS(STORE.deliveryOutside)} — Outside Accra`}
+            </p>
           </div>
           <button
             onClick={() => {
@@ -286,7 +263,10 @@ export default function CheckoutPage() {
           </button>
 
           <a
-            href={toWaLink(STORE.whatsapp, `Hi, I just paid ${formatGHS(grandTotal)} for my order. TXID: ${txId || '...'}`)}
+            href={toWaLink(
+              STORE.whatsapp,
+              `Hi, I just paid ${formatGHS(grandTotal)} for my order. TXID: ${txId || '...'}`
+            )}
             target="_blank"
             rel="noreferrer"
             className="block text-center text-sm text-zinc-500 hover:text-gold"

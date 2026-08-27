@@ -1,8 +1,9 @@
 'use client';
 
-import { useMemo, useState, Suspense } from 'react';
+import { useMemo, useState, Suspense, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { PRODUCTS, CATEGORIES } from '@/data/products';
+import { CATEGORIES } from '@/data/products';
+import { useProducts } from '@/store/products';
 import { ProductCard } from '@/components/ProductCard';
 import { cn } from '@/lib/utils';
 
@@ -12,9 +13,14 @@ function ShopContent() {
   const [cat, setCat] = useState(initialCat);
   const [sort, setSort] = useState('featured');
   const [q, setQ] = useState('');
+  const { products, loading } = useProducts();
+
+  useEffect(() => {
+    setCat(searchParams.get('cat') || 'all');
+  }, [searchParams]);
 
   const filtered = useMemo(() => {
-    let list = [...PRODUCTS];
+    let list = [...products];
     if (cat !== 'all') list = list.filter((p) => p.category === cat);
     if (q.trim()) {
       const term = q.toLowerCase();
@@ -28,8 +34,9 @@ function ShopContent() {
     if (sort === 'price-asc') list.sort((a, b) => a.price - b.price);
     else if (sort === 'price-desc') list.sort((a, b) => b.price - a.price);
     else if (sort === 'name') list.sort((a, b) => a.name.localeCompare(b.name));
+    else list.sort((a, b) => Number(!!b.featured) - Number(!!a.featured));
     return list;
-  }, [cat, sort, q]);
+  }, [products, cat, sort, q]);
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
@@ -73,8 +80,10 @@ function ShopContent() {
         </div>
       </div>
 
-      {filtered.length === 0 ? (
-        <p className="py-16 text-center text-zinc-500">No products found.</p>
+      {loading ? (
+        <p className="py-16 text-center text-zinc-500">Loading...</p>
+      ) : filtered.length === 0 ? (
+        <p className="py-16 text-center text-zinc-500">No products found in this category.</p>
       ) : (
         <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
           {filtered.map((p) => (
