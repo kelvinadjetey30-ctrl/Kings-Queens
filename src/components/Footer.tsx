@@ -14,19 +14,53 @@ export function Footer() {
         <div>
           <h4 className="mb-3 text-sm font-semibold text-white">Shop</h4>
           <ul className="space-y-2 text-sm">
-            <li><Link href="/shop" className="hover:text-gold">All Products</Link></li>
-            <li><Link href="/shop?cat=chains" className="hover:text-gold">Chains</Link></li>
-            <li><Link href="/shop?cat=watches" className="hover:text-gold">Watches</Link></li>
-            <li><Link href="/shop?cat=bracelets" className="hover:text-gold">Bracelets</Link></li>
+            <li>
+              <Link href="/shop" className="hover:text-gold">
+                All Products
+              </Link>
+            </li>
+            <li>
+              <Link href="/shop?cat=chains" className="hover:text-gold">
+                Chains / Necklaces
+              </Link>
+            </li>
+            <li>
+              <Link href="/shop?cat=watches" className="hover:text-gold">
+                Watches
+              </Link>
+            </li>
+            <li>
+              <Link href="/shop?cat=clothes" className="hover:text-gold">
+                Clothes
+              </Link>
+            </li>
+            <li>
+              <Link href="/shop?cat=shoes" className="hover:text-gold">
+                Shoes / Footwear
+              </Link>
+            </li>
           </ul>
         </div>
         <div>
           <h4 className="mb-3 text-sm font-semibold text-white">Help</h4>
           <ul className="space-y-2 text-sm">
-            <li><Link href="/track-order" className="hover:text-gold">Track Order</Link></li>
-            <li><Link href="/account" className="hover:text-gold">My Account</Link></li>
             <li>
-              <a href={toWaLink(STORE.whatsapp, 'Hello, I need help with my order')} target="_blank" rel="noreferrer" className="hover:text-gold">
+              <Link href="/track-order" className="hover:text-gold">
+                Track Order
+              </Link>
+            </li>
+            <li>
+              <Link href="/account" className="hover:text-gold">
+                My Account
+              </Link>
+            </li>
+            <li>
+              <a
+                href={toWaLink(STORE.whatsapp, 'Hello, I need help with my order')}
+                target="_blank"
+                rel="noreferrer"
+                className="hover:text-gold"
+              >
                 WhatsApp Support
               </a>
             </li>
@@ -35,8 +69,11 @@ export function Footer() {
         <div>
           <h4 className="mb-3 text-sm font-semibold text-white">Contact</h4>
           <p className="text-sm">WhatsApp: {STORE.whatsapp}</p>
-          <p className="text-sm">Email: {STORE.email}</p>
-          <p className="mt-2 text-xs text-zinc-500">Free delivery on orders ≥ GHS {STORE.freeDeliveryThreshold}</p>
+          <p className="text-sm">Phone: {STORE.phone}</p>
+          <p className="text-sm break-all">Email: {STORE.email}</p>
+          <p className="mt-2 text-xs text-zinc-500">
+            Free delivery on orders ≥ GHS {STORE.freeDeliveryThreshold}
+          </p>
         </div>
       </div>
       <div className="border-t border-zinc-800 py-4 text-center text-xs text-zinc-500">

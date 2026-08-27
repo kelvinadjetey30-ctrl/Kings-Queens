@@ -21,7 +21,7 @@ export default function HomePage() {
             Drip For Kings<br />and Queens
           </h1>
           <p className="max-w-lg text-zinc-400">
-            Luxury chains, watches, clothes & more. Pay with MTN MoMo. Free delivery on orders over GHS{' '}
+            Chains, watches, clothes, shoes & more. Pay with MTN MoMo. Free delivery on orders over GHS{' '}
             {STORE.freeDeliveryThreshold}.
           </p>
           <div className="flex flex-wrap gap-3">
@@ -61,7 +61,7 @@ export default function HomePage() {
             <Headphones className="h-8 w-8 text-gold" />
             <div>
               <p className="font-semibold">WhatsApp Support</p>
-              <p className="text-sm text-zinc-500">We reply fast</p>
+              <p className="text-sm text-zinc-500">{STORE.whatsapp}</p>
             </div>
           </div>
         </div>
@@ -69,12 +69,12 @@ export default function HomePage() {
 
       <section className="mx-auto max-w-6xl px-4 py-12">
         <h2 className="mb-6 text-2xl font-bold">Shop by Category</h2>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-6">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-5">
           {CATEGORIES.filter((c) => c.id !== 'all').map((c) => (
             <Link
               key={c.id}
               href={`/shop?cat=${c.id}`}
-              className="rounded-xl border border-zinc-200 bg-white px-4 py-6 text-center text-sm font-semibold transition hover:border-gold hover:shadow-sm"
+              className="rounded-xl border border-zinc-200 bg-white px-3 py-5 text-center text-sm font-semibold transition hover:border-gold hover:shadow-sm"
             >
               {c.name}
             </Link>

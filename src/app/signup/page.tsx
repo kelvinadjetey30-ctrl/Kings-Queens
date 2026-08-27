@@ -16,7 +16,7 @@ export default function SignupPage() {
   const [loading, setLoading] = useState(false);
 
   if (user) {
-    router.replace('/account');
+    router.replace('/');
     return null;
   }
 
@@ -27,7 +27,7 @@ export default function SignupPage() {
     setLoading(false);
     if (res.ok) {
       toast.success('Account created!');
-      router.push('/account');
+      router.push('/');
     } else {
       toast.error(res.error || 'Signup failed');
     }
@@ -35,7 +35,8 @@ export default function SignupPage() {
 
   return (
     <div className="mx-auto max-w-md px-4 py-16">
-      <h1 className="mb-6 text-center text-3xl font-bold">Create account</h1>
+      <h1 className="mb-2 text-center text-3xl font-bold">Create account</h1>
+      <p className="mb-6 text-center text-sm text-zinc-500">Join THE KINGS AND QUEENS to shop drip</p>
       <form onSubmit={handle} className="space-y-4 rounded-2xl border border-zinc-200 bg-white p-6">
         <input
           placeholder="Full name"
@@ -53,7 +54,7 @@ export default function SignupPage() {
           className="w-full rounded-lg border border-zinc-200 px-3 py-2.5 text-sm outline-none focus:border-gold"
         />
         <input
-          placeholder="Phone (optional)"
+          placeholder="Phone (0XXXXXXXXX)"
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
           className="w-full rounded-lg border border-zinc-200 px-3 py-2.5 text-sm outline-none focus:border-gold"

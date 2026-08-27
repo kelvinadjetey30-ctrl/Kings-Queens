@@ -1,20 +1,22 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/store/auth';
 import { toast } from 'sonner';
 
-export default function LoginPage() {
+function LoginForm() {
   const { login, user } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const next = searchParams.get('next') || '/';
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
   if (user) {
-    router.replace(user.role === 'admin' ? '/admin' : '/account');
+    router.replace(user.role === 'admin' ? '/admin' : next.startsWith('/') ? next : '/');
     return null;
   }
 
@@ -25,7 +27,13 @@ export default function LoginPage() {
     setLoading(false);
     if (res.ok) {
       toast.success('Welcome back!');
-      router.push(email.toLowerCase().includes('admin') ? '/admin' : '/account');
+      const dest =
+        email.trim().toLowerCase().includes('admin') || email.trim().toLowerCase() === 'admin@thekingsandqueens.com'
+          ? '/admin'
+          : next.startsWith('/')
+            ? next
+            : '/';
+      router.push(dest);
     } else {
       toast.error(res.error || 'Login failed');
     }
@@ -33,7 +41,10 @@ export default function LoginPage() {
 
   return (
     <div className="mx-auto max-w-md px-4 py-16">
-      <h1 className="mb-6 text-center text-3xl font-bold">Login</h1>
+      <h1 className="mb-2 text-center text-3xl font-bold">Welcome</h1>
+      <p className="mb-6 text-center text-sm text-zinc-500">
+        Sign in to shop THE KINGS AND QUEENS
+      </p>
       <form onSubmit={handle} className="space-y-4 rounded-2xl border border-zinc-200 bg-white p-6">
         <input
           type="email"
@@ -66,8 +77,16 @@ export default function LoginPage() {
         </Link>
       </p>
       <p className="mt-2 text-center text-xs text-zinc-400">
-        Admin demo: admin@thekingsandqueens.com / Admin@2024
+        Admin: admin@thekingsandqueens.com / Admin@2024
       </p>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-zinc-500">Loading...</div>}>
+      <LoginForm />
+    </Suspense>
   );
 }
