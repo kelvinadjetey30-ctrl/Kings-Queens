@@ -4,13 +4,14 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/store/auth';
+import { useProducts } from '@/store/products';
 import { getAllOrders, Order } from '@/store/orders';
-import { PRODUCTS } from '@/data/products';
 import { formatGHS } from '@/lib/utils';
 import { Package, ShoppingBag, Clock, CheckCircle } from 'lucide-react';
 
 export default function AdminDashboard() {
   const { user, isAdmin, loading } = useAuth();
+  const { products } = useProducts();
   const router = useRouter();
   const [orders, setOrders] = useState<Order[]>([]);
 
@@ -53,7 +54,7 @@ export default function AdminDashboard() {
         <StatCard icon={<Clock className="h-5 w-5" />} label="Pending payment" value={String(pending)} />
         <StatCard icon={<CheckCircle className="h-5 w-5" />} label="Paid / Processing" value={String(paid)} />
         <StatCard icon={<ShoppingBag className="h-5 w-5" />} label="Total orders" value={String(orders.length)} />
-        <StatCard icon={<Package className="h-5 w-5" />} label="Products" value={String(PRODUCTS.length)} />
+        <StatCard icon={<Package className="h-5 w-5" />} label="Products" value={String(products.length)} />
       </div>
 
       <div className="mt-8 rounded-2xl border border-zinc-200 bg-white p-6">
