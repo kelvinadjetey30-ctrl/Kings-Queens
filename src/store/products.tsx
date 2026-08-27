@@ -1,9 +1,9 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import { Product, SEED_PRODUCTS, CategoryId } from '@/data/products';
+import { Product, SEED_PRODUCTS } from '@/data/products';
 
-const KEY = 'kq_products';
+const KEY = 'kq_products_v2';
 
 type ProductsCtx = {
   products: Product[];
@@ -21,11 +21,13 @@ type ProductsCtx = {
 const ProductsContext = createContext<ProductsCtx | null>(null);
 
 function slugify(name: string) {
-  return name
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '') || `product-${Date.now()}`;
+  return (
+    name
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '') || `product-${Date.now()}`
+  );
 }
 
 function uniqueSlug(base: string, existing: Product[], excludeId?: string) {
@@ -87,9 +89,6 @@ export function ProductsProvider({ children }: { children: React.ReactNode }) {
       const current = products[idx];
       let slug = current.slug;
       if (patch.slug) slug = uniqueSlug(slugify(patch.slug), products, id);
-      else if (patch.name && patch.name !== current.name) {
-        // keep existing slug unless admin changes name and wants new — keep slug stable
-      }
       const next: Product = {
         ...current,
         ...patch,
@@ -148,5 +147,3 @@ export function useProducts() {
   if (!ctx) throw new Error('useProducts must be used within ProductsProvider');
   return ctx;
 }
-
-export type { CategoryId };

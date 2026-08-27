@@ -3,6 +3,7 @@
 import { AuthProvider } from '@/store/auth';
 import { CartProvider } from '@/store/cart';
 import { ProductsProvider } from '@/store/products';
+import { AuthGate } from '@/components/AuthGate';
 import { Toaster } from 'sonner';
 
 export function Providers({ children }: { children: React.ReactNode }) {
@@ -10,7 +11,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
     <AuthProvider>
       <ProductsProvider>
         <CartProvider>
-          {children}
+          <AuthGate>{children}</AuthGate>
           <Toaster position="top-center" richColors closeButton />
         </CartProvider>
       </ProductsProvider>

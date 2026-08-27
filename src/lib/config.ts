@@ -1,16 +1,18 @@
 export const STORE = {
   name: 'THE KINGS AND QUEENS',
   tagline: 'Drip For Kings and Queens',
-  momoName: process.env.NEXT_PUBLIC_MOMO_NAME || 'The Kings and Queens Enterprise',
-  momoNumber: process.env.NEXT_PUBLIC_MOMO_NUMBER || '0550000000',
-  whatsapp: process.env.NEXT_PUBLIC_WHATSAPP || '0550000000',
-  email: process.env.NEXT_PUBLIC_STORE_EMAIL || 'hello@thekingsandqueens.online',
+  momoName: process.env.NEXT_PUBLIC_MOMO_NAME || 'DOMINIC NII KORLEY BOTCHWAY',
+  momoNumber: process.env.NEXT_PUBLIC_MOMO_NUMBER || '0260831202',
+  whatsapp: process.env.NEXT_PUBLIC_WHATSAPP || '0260831202',
+  email: process.env.NEXT_PUBLIC_STORE_EMAIL || 'thekingsandqueens3@gmail.com',
+  phone: process.env.NEXT_PUBLIC_STORE_PHONE || '0260831202',
   freeDeliveryThreshold: 500,
   deliveryAccra: 40,
   deliveryOutside: 70,
   adminEmail: process.env.NEXT_PUBLIC_ADMIN_EMAIL || 'admin@thekingsandqueens.com',
   adminPassword: process.env.NEXT_PUBLIC_ADMIN_PASSWORD || 'Admin@2024',
 };
+
 export const REGIONS = [
   'Greater Accra',
   'Ashanti',
