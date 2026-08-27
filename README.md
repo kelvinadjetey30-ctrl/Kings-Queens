@@ -2,7 +2,7 @@
 
 Ghana No.1 Premium Drip Store — **Drip For Kings and Queens**
 
-Next.js 14 App Router · TypeScript · Tailwind · localStorage cart/orders · MTN MoMo manual checkout · Admin panel
+Next.js 14 · TypeScript · Tailwind · Auth required · MTN MoMo checkout · Admin product CRUD
 
 ## Quick start
 
@@ -11,46 +11,40 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000)
+Open [http://localhost:3000](http://localhost:3000) — visitors must **login or signup** first.
 
-## Features
+## Contact / MoMo (defaults)
 
-- Product catalog (chains, watches, bracelets, clothes, slippers)
-- Cart + quantity / variants
-- 3-step checkout with MTN MoMo (copy number + paste TXID)
-- Order success page + track by order ID
-- Customer signup/login (localStorage)
-- Admin dashboard: view/update order status, products list
-- WhatsApp float + support links
-- Free delivery threshold, Accra vs outside fees
+| Field | Value |
+|-------|--------|
+| MoMo name | DOMINIC NII KORLEY BOTCHWAY |
+| MoMo number | 0260831202 |
+| WhatsApp | 0260831202 |
+| Email | thekingsandqueens3@gmail.com |
+| Phone | 0260831202 |
 
-## Admin login
+Override via `.env.local` (see `.env.example`).
 
-- **Email:** `admin@thekingsandqueens.com`
-- **Password:** `Admin@2024`
+## Admin
 
-## Config
+- Email: `admin@thekingsandqueens.com`
+- Password: `Admin@2024`
+- Products: add / edit / delete, set **main category** (shop filter) + **type** (subcategory for admin)
 
-Copy `.env.example` → `.env.local` and set your real values:
+## Categories (shop)
 
-```
-NEXT_PUBLIC_MOMO_NAME=The Kings and Queens Enterprise
-NEXT_PUBLIC_MOMO_NUMBER=055XXXXXXX
-NEXT_PUBLIC_WHATSAPP=055XXXXXXX
-NEXT_PUBLIC_ADMIN_EMAIL=admin@thekingsandqueens.com
-NEXT_PUBLIC_ADMIN_PASSWORD=Admin@2024
-```
+1. Chains / Necklaces  
+2. Watches  
+3. Bracelets  
+4. Rings  
+5. Clothes  
+6. Shoes / Footwear  
+7. Caps / Headwear  
+8. Bags / Wallets  
+9. Eyewear / Belts / Others  
 
-Defaults work for local demo if you skip this.
+Delivery: **standard only** (Accra GHS 40 · Outside GHS 70 · free over GHS 500).
 
-## Deploy (Vercel)
+## Deploy
 
-1. Import this repo on [vercel.com](https://vercel.com)
-2. Add the env vars above
-3. Deploy — domain can be linked to `thekingsandqueens.online`
-
-## Notes
-
-- Orders & accounts are stored in the browser (`localStorage`) for this demo.
-- Admin can mark orders paid / shipped from `/admin/orders`.
-- To go production with a real database, connect Supabase later (schema ready to extend).
+Import on Vercel, set env vars, deploy. Link domain when ready.

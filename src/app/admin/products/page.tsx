@@ -3,10 +3,9 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
 import { useAuth } from '@/store/auth';
 import { useProducts } from '@/store/products';
-import { CategoryId, CATEGORY_OPTIONS, Product } from '@/data/products';
+import { CategoryId, CATEGORY_OPTIONS, SUBCATEGORIES, Product } from '@/data/products';
 import { formatGHS } from '@/lib/utils';
 import { ArrowLeft, Plus, Pencil, Trash2, X } from 'lucide-react';
 import { toast } from 'sonner';
@@ -14,6 +13,7 @@ import { toast } from 'sonner';
 type FormState = {
   name: string;
   category: CategoryId;
+  subcategory: string;
   description: string;
   price: string;
   compareAt: string;
@@ -25,6 +25,7 @@ type FormState = {
 const emptyForm = (): FormState => ({
   name: '',
   category: 'chains',
+  subcategory: SUBCATEGORIES.chains[0],
   description: '',
   price: '',
   compareAt: '',
@@ -34,9 +35,11 @@ const emptyForm = (): FormState => ({
 });
 
 function productToForm(p: Product): FormState {
+  const subs = SUBCATEGORIES[p.category] || [];
   return {
     name: p.name,
     category: p.category,
+    subcategory: p.subcategory && subs.includes(p.subcategory) ? p.subcategory : subs[0] || '',
     description: p.description,
     price: String(p.price),
     compareAt: p.compareAt != null ? String(p.compareAt) : '',
@@ -85,6 +88,15 @@ export default function AdminProductsPage() {
     setForm(emptyForm());
   };
 
+  const setCategory = (category: CategoryId) => {
+    const subs = SUBCATEGORIES[category];
+    setForm((f) => ({
+      ...f,
+      category,
+      subcategory: subs[0] || '',
+    }));
+  };
+
   const save = () => {
     const name = form.name.trim();
     const price = parseFloat(form.price);
@@ -102,11 +114,13 @@ export default function AdminProductsPage() {
       return;
     }
     const image = form.image.trim() || emptyForm().image;
+    const catLabel = CATEGORY_OPTIONS.find((c) => c.id === form.category)?.name || form.category;
 
     if (editingId) {
       updateProduct(editingId, {
         name,
         category: form.category,
+        subcategory: form.subcategory || undefined,
         description: form.description.trim(),
         price,
         compareAt,
@@ -115,21 +129,22 @@ export default function AdminProductsPage() {
         featured: form.featured,
         flash: form.flash,
       });
-      toast.success('Product updated — shows under ' + form.category);
+      toast.success(`Updated — shows under ${catLabel}`);
     } else {
       addProduct({
         name,
         category: form.category,
+        subcategory: form.subcategory || undefined,
         description: form.description.trim() || name,
         price,
         compareAt,
         image,
         images: [image],
-        tags: [],
+        tags: form.subcategory ? [form.subcategory] : [],
         featured: form.featured,
         flash: form.flash,
       });
-      toast.success('Product added under ' + form.category);
+      toast.success(`Added under ${catLabel}`);
     }
     closeModal();
   };
@@ -139,6 +154,8 @@ export default function AdminProductsPage() {
     deleteProduct(p.id);
     toast.success('Product deleted');
   };
+
+  const subOptions = SUBCATEGORIES[form.category] || [];
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8">
@@ -153,8 +170,7 @@ export default function AdminProductsPage() {
         <div>
           <h1 className="text-3xl font-bold">Products</h1>
           <p className="text-sm text-zinc-500">
-            Add, edit, or delete. Category controls where it appears in the shop (Clothes, Bracelets,
-            etc.).
+            Main category = shop filter. Type (subcategory) is for admin detail only.
           </p>
         </div>
         <div className="flex gap-2">
@@ -193,7 +209,7 @@ export default function AdminProductsPage() {
             <button
               key={c.id}
               onClick={() => setFilterCat(c.id)}
-              className={`rounded-full px-3 py-1 text-xs font-medium capitalize ${
+              className={`rounded-full px-3 py-1 text-xs font-medium ${
                 filterCat === c.id ? 'bg-zinc-900 text-white' : 'bg-zinc-100 text-zinc-600'
               }`}
             >
@@ -209,6 +225,7 @@ export default function AdminProductsPage() {
             <tr>
               <th className="px-4 py-3">Product</th>
               <th className="px-4 py-3">Category</th>
+              <th className="px-4 py-3">Type</th>
               <th className="px-4 py-3">Price</th>
               <th className="px-4 py-3">Flags</th>
               <th className="px-4 py-3 text-right">Actions</th>
@@ -217,7 +234,7 @@ export default function AdminProductsPage() {
           <tbody>
             {filtered.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-4 py-12 text-center text-zinc-500">
+                <td colSpan={6} className="px-4 py-12 text-center text-zinc-500">
                   No products. Click &quot;Add product&quot; to create one.
                 </td>
               </tr>
@@ -236,7 +253,10 @@ export default function AdminProductsPage() {
                       </div>
                     </div>
                   </td>
-                  <td className="px-4 py-3 capitalize">{p.category}</td>
+                  <td className="px-4 py-3 text-xs">
+                    {CATEGORY_OPTIONS.find((c) => c.id === p.category)?.name || p.category}
+                  </td>
+                  <td className="px-4 py-3 text-xs text-zinc-600">{p.subcategory || '—'}</td>
                   <td className="px-4 py-3 font-medium">{formatGHS(p.price)}</td>
                   <td className="px-4 py-3">
                     <div className="flex flex-wrap gap-1">
@@ -298,16 +318,33 @@ export default function AdminProductsPage() {
 
               <div>
                 <label className="mb-1 block text-xs font-medium text-zinc-500">
-                  Category * (where it shows in shop)
+                  Main category * (shop filter)
                 </label>
                 <select
                   value={form.category}
-                  onChange={(e) => setForm({ ...form, category: e.target.value as CategoryId })}
+                  onChange={(e) => setCategory(e.target.value as CategoryId)}
                   className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm outline-none focus:border-gold"
                 >
                   {CATEGORY_OPTIONS.map((c) => (
                     <option key={c.id} value={c.id}>
                       {c.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="mb-1 block text-xs font-medium text-zinc-500">
+                  Type / subcategory (admin listing)
+                </label>
+                <select
+                  value={form.subcategory}
+                  onChange={(e) => setForm({ ...form, subcategory: e.target.value })}
+                  className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm outline-none focus:border-gold"
+                >
+                  {subOptions.map((s) => (
+                    <option key={s} value={s}>
+                      {s}
                     </option>
                   ))}
                 </select>
