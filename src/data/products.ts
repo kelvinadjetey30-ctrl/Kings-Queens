@@ -54,7 +54,7 @@ export const PRODUCTS: Product[] = [
   },
   {
     id: 'p3',
-    slug: 'luxury- chronograph-watch',
+    slug: 'luxury-chronograph-watch',
     name: 'Luxury Chronograph Watch',
     category: 'watches',
     description: 'Stainless steel chronograph with gold accents. Water resistant. Ghana drip approved.',
