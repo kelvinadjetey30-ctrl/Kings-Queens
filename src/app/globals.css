@@ -1,5 +1,14 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-body { color: #0a0a0a; background: #fff; }
-.font-serif { font-family: var(--font-playfair), Georgia, serif; }
+
+body {
+  color: #0a0a0a;
+  background: #fafafa;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
