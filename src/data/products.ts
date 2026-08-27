@@ -1,9 +1,12 @@
 export type Variant = { id: string; name: string; price: number; stock: number };
+
+export type CategoryId = 'chains' | 'watches' | 'clothes' | 'slippers' | 'bracelets';
+
 export type Product = {
   id: string;
   slug: string;
   name: string;
-  category: 'chains' | 'watches' | 'clothes' | 'slippers' | 'bracelets';
+  category: CategoryId;
   description: string;
   price: number;
   compareAt?: number;
@@ -15,7 +18,8 @@ export type Product = {
   flash?: boolean;
 };
 
-export const PRODUCTS: Product[] = [
+/** Seed catalog — admin can add/edit/delete; stored in localStorage after first load */
+export const SEED_PRODUCTS: Product[] = [
   {
     id: 'p1',
     slug: 'royal-gold-cuban-chain',
@@ -153,14 +157,10 @@ export const CATEGORIES = [
   { id: 'slippers', name: 'Slippers', slug: 'slippers' },
 ] as const;
 
-export function getProductBySlug(slug: string) {
-  return PRODUCTS.find((p) => p.slug === slug);
-}
-
-export function getFeatured() {
-  return PRODUCTS.filter((p) => p.featured);
-}
-
-export function getFlash() {
-  return PRODUCTS.filter((p) => p.flash);
-}
+export const CATEGORY_OPTIONS: { id: CategoryId; name: string }[] = [
+  { id: 'chains', name: 'Chains' },
+  { id: 'watches', name: 'Watches' },
+  { id: 'bracelets', name: 'Bracelets' },
+  { id: 'clothes', name: 'Clothes' },
+  { id: 'slippers', name: 'Slippers' },
+];

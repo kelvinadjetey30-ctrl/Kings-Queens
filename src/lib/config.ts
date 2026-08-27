@@ -8,8 +8,24 @@ export const STORE = {
   freeDeliveryThreshold: 500,
   deliveryAccra: 40,
   deliveryOutside: 70,
-  expressAccra: 70,
   adminEmail: process.env.NEXT_PUBLIC_ADMIN_EMAIL || 'admin@thekingsandqueens.com',
   adminPassword: process.env.NEXT_PUBLIC_ADMIN_PASSWORD || 'Admin@2024',
 };
-export const REGIONS = ['Greater Accra','Ashanti','Western','Eastern','Central','Volta','Northern','Upper East','Upper West','Bono','Bono East','Ahafo','Western North','Oti','Savannah','North East'] as const;
+export const REGIONS = [
+  'Greater Accra',
+  'Ashanti',
+  'Western',
+  'Eastern',
+  'Central',
+  'Volta',
+  'Northern',
+  'Upper East',
+  'Upper West',
+  'Bono',
+  'Bono East',
+  'Ahafo',
+  'Western North',
+  'Oti',
+  'Savannah',
+  'North East',
+] as const;
