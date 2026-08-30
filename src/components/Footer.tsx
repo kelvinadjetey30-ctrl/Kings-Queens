@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { STORE } from '@/lib/config';
+import { DELIVERY } from '@/lib/delivery';
 import { toWaLink } from '@/lib/utils';
 
 export function Footer() {
@@ -72,7 +73,7 @@ export function Footer() {
           <p className="text-sm">Phone: {STORE.phone}</p>
           <p className="text-sm break-all">Email: {STORE.email}</p>
           <p className="mt-2 text-xs text-zinc-500">
-            Free delivery on orders ≥ GHS {STORE.freeDeliveryThreshold}
+            Delivery from GHS {DELIVERY.accra.fee} · Free over GHS {DELIVERY.freeThreshold}
           </p>
         </div>
       </div>

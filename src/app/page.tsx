@@ -5,6 +5,7 @@ import { ProductCard } from '@/components/ProductCard';
 import { useProducts } from '@/store/products';
 import { CATEGORIES } from '@/data/products';
 import { STORE } from '@/lib/config';
+import { DELIVERY } from '@/lib/delivery';
 import { ArrowRight, Truck, Shield, Headphones } from 'lucide-react';
 
 export default function HomePage() {
@@ -21,8 +22,8 @@ export default function HomePage() {
             Drip For Kings<br />and Queens
           </h1>
           <p className="max-w-lg text-zinc-400">
-            Chains, watches, clothes, shoes & more. Pay with MTN MoMo. Free delivery on orders over GHS{' '}
-            {STORE.freeDeliveryThreshold}.
+            Chains, watches, clothes, shoes & more. Pay with MTN MoMo. Delivery from GHS{' '}
+            {DELIVERY.accra.fee} · free over GHS {DELIVERY.freeThreshold}.
           </p>
           <div className="flex flex-wrap gap-3">
             <Link
@@ -46,8 +47,8 @@ export default function HomePage() {
           <div className="flex items-center gap-3">
             <Truck className="h-8 w-8 text-gold" />
             <div>
-              <p className="font-semibold">Fast Delivery</p>
-              <p className="text-sm text-zinc-500">Accra & nationwide</p>
+              <p className="font-semibold">Zone delivery</p>
+              <p className="text-sm text-zinc-500">Fair fees by region</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
