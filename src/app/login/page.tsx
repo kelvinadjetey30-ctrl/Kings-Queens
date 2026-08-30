@@ -27,8 +27,10 @@ function LoginForm() {
     setLoading(false);
     if (res.ok) {
       toast.success('Welcome back!');
+      // Role comes from auth store after login — check via re-read would be async; use email only for redirect hint
+      const e = email.trim().toLowerCase();
       const dest =
-        email.trim().toLowerCase().includes('admin') || email.trim().toLowerCase() === 'admin@thekingsandqueens.com'
+        e === 'admin@thekingsandqueens.com'
           ? '/admin'
           : next.startsWith('/')
             ? next
@@ -75,9 +77,6 @@ function LoginForm() {
         <Link href="/signup" className="font-medium text-gold hover:underline">
           Sign up
         </Link>
-      </p>
-      <p className="mt-2 text-center text-xs text-zinc-400">
-        Admin: admin@thekingsandqueens.com / Admin@2024
       </p>
     </div>
   );

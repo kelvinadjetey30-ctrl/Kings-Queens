@@ -6,9 +6,6 @@ export const STORE = {
   whatsapp: process.env.NEXT_PUBLIC_WHATSAPP || '0260931202',
   email: process.env.NEXT_PUBLIC_STORE_EMAIL || 'thekingsandqueens3@gmail.com',
   phone: process.env.NEXT_PUBLIC_STORE_PHONE || '0260931202',
-  freeDeliveryThreshold: 500,
-  deliveryAccra: 40,
-  deliveryOutside: 70,
   adminEmail: process.env.NEXT_PUBLIC_ADMIN_EMAIL || 'admin@thekingsandqueens.com',
   adminPassword: process.env.NEXT_PUBLIC_ADMIN_PASSWORD || 'Admin@2024',
 };

@@ -5,10 +5,11 @@ import { useRouter } from 'next/navigation';
 import { useCart } from '@/store/cart';
 import { useAuth } from '@/store/auth';
 import { STORE, REGIONS } from '@/lib/config';
+import { getDeliveryQuote, DELIVERY } from '@/lib/delivery';
 import { formatGHS, isGhanaPhone, generateOrderId, toWaLink } from '@/lib/utils';
 import { addOrder, Order } from '@/store/orders';
 import { toast } from 'sonner';
-import { Copy, Check } from 'lucide-react';
+import { Copy, Check, Truck } from 'lucide-react';
 
 export default function CheckoutPage() {
   const { items, total, clear } = useCart();
@@ -37,9 +38,8 @@ export default function CheckoutPage() {
     );
   }
 
-  const isAccra = region === 'Greater Accra';
-  const deliveryFee =
-    total >= STORE.freeDeliveryThreshold ? 0 : isAccra ? STORE.deliveryAccra : STORE.deliveryOutside;
+  const quote = getDeliveryQuote(region, total);
+  const deliveryFee = quote.fee;
   const grandTotal = total + deliveryFee;
 
   const copyMoMo = async () => {
@@ -163,18 +163,21 @@ export default function CheckoutPage() {
 
       {step === 2 && (
         <div className="space-y-4 rounded-2xl border border-zinc-200 bg-white p-6">
-          <h2 className="font-semibold">Delivery</h2>
-          <select
-            value={region}
-            onChange={(e) => setRegion(e.target.value)}
-            className="w-full rounded-lg border border-zinc-200 px-3 py-2.5 text-sm outline-none focus:border-gold"
-          >
-            {REGIONS.map((r) => (
-              <option key={r} value={r}>
-                {r}
-              </option>
-            ))}
-          </select>
+          <h2 className="font-semibold">Delivery address</h2>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-zinc-500">Region *</label>
+            <select
+              value={region}
+              onChange={(e) => setRegion(e.target.value)}
+              className="w-full rounded-lg border border-zinc-200 px-3 py-2.5 text-sm outline-none focus:border-gold"
+            >
+              {REGIONS.map((r) => (
+                <option key={r} value={r}>
+                  {r}
+                </option>
+              ))}
+            </select>
+          </div>
           <input
             placeholder="City / Town *"
             value={city}
@@ -188,16 +191,43 @@ export default function CheckoutPage() {
             rows={3}
             className="w-full rounded-lg border border-zinc-200 px-3 py-2.5 text-sm outline-none focus:border-gold"
           />
-          <div className="rounded-lg border border-zinc-200 bg-zinc-50 p-3">
-            <p className="text-sm font-medium">Standard delivery</p>
-            <p className="text-xs text-zinc-500">
-              {total >= STORE.freeDeliveryThreshold
-                ? 'FREE (order above threshold)'
-                : isAccra
-                  ? `${formatGHS(STORE.deliveryAccra)} — Greater Accra`
-                  : `${formatGHS(STORE.deliveryOutside)} — Outside Accra`}
-            </p>
+
+          {/* Live delivery quote — Jumia-style */}
+          <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-4">
+            <div className="flex items-start gap-3">
+              <Truck className="mt-0.5 h-5 w-5 shrink-0 text-gold" />
+              <div className="flex-1 text-sm">
+                <p className="font-semibold text-zinc-900">Delivery fee for {region}</p>
+                {quote.free ? (
+                  <p className="mt-1 text-green-700">
+                    FREE delivery (orders ≥ {formatGHS(quote.freeThreshold)})
+                  </p>
+                ) : (
+                  <p className="mt-1 text-zinc-700">
+                    <span className="text-lg font-bold text-zinc-900">{formatGHS(quote.fee)}</span>
+                    <span className="text-zinc-500"> · {quote.label}</span>
+                  </p>
+                )}
+                <p className="mt-1 text-xs text-zinc-500">Estimated: {quote.eta}</p>
+                {!quote.free && total < quote.freeThreshold && (
+                  <p className="mt-2 text-xs text-zinc-500">
+                    Add {formatGHS(quote.freeThreshold - total)} more for free delivery nationwide.
+                  </p>
+                )}
+              </div>
+            </div>
           </div>
+
+          <div className="rounded-lg border border-dashed border-zinc-200 p-3 text-xs text-zinc-500">
+            <p className="font-medium text-zinc-700">How fees work</p>
+            <ul className="mt-1 list-inside list-disc space-y-0.5">
+              <li>Greater Accra — {formatGHS(DELIVERY.accra.fee)}</li>
+              <li>Nearby (Eastern, Central, Volta…) — {formatGHS(DELIVERY.near.fee)}</li>
+              <li>Mid (Ashanti, Western, Bono…) — {formatGHS(DELIVERY.mid.fee)}</li>
+              <li>Far (Northern, Upper regions…) — {formatGHS(DELIVERY.far.fee)}</li>
+            </ul>
+          </div>
+
           <button
             onClick={() => {
               if (!city.trim() || !address.trim()) {
@@ -228,7 +258,8 @@ export default function CheckoutPage() {
               </button>
             </div>
             <p className="mt-3 text-xs text-zinc-500">
-              After sending, paste the Transaction ID (TXID) below. We verify manually and confirm via WhatsApp.
+              After sending, paste the Transaction ID (TXID) below. We verify manually and confirm via
+              WhatsApp.
             </p>
           </div>
 
@@ -245,7 +276,7 @@ export default function CheckoutPage() {
               <span>{formatGHS(total)}</span>
             </div>
             <div className="mt-1 flex justify-between">
-              <span className="text-zinc-500">Delivery</span>
+              <span className="text-zinc-500">Delivery ({region})</span>
               <span>{deliveryFee === 0 ? 'FREE' : formatGHS(deliveryFee)}</span>
             </div>
             <div className="mt-2 flex justify-between border-t border-zinc-100 pt-2 font-bold">

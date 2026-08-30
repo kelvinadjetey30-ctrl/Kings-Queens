@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useCart } from '@/store/cart';
 import { formatGHS } from '@/lib/utils';
-import { STORE } from '@/lib/config';
+import { DELIVERY, deliveryFromFee } from '@/lib/delivery';
 import { Minus, Plus, Trash2, ShoppingBag } from 'lucide-react';
 
 export default function CartPage() {
@@ -26,14 +26,15 @@ export default function CartPage() {
     );
   }
 
-  const freeEligible = total >= STORE.freeDeliveryThreshold;
+  const freeEligible = total >= DELIVERY.freeThreshold;
+  const fromFee = deliveryFromFee();
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
       <h1 className="mb-6 text-3xl font-bold">Cart ({count})</h1>
 
       <div className="grid gap-8 lg:grid-cols-3">
-        <div className="lg:col-span-2 space-y-4">
+        <div className="space-y-4 lg:col-span-2">
           {items.map((item) => (
             <div
               key={`${item.productId}-${item.variantId || 'd'}`}
@@ -92,12 +93,18 @@ export default function CartPage() {
             </div>
             <div className="flex justify-between">
               <span className="text-zinc-500">Delivery</span>
-              <span>{freeEligible ? 'FREE' : `from ${formatGHS(STORE.deliveryAccra)}`}</span>
+              <span>
+                {freeEligible ? 'FREE' : `from ${formatGHS(fromFee)}`}
+              </span>
             </div>
           </div>
+          <p className="mt-2 text-xs text-zinc-500">
+            Fee depends on your region at checkout (Accra {formatGHS(DELIVERY.accra.fee)} → Far{' '}
+            {formatGHS(DELIVERY.far.fee)}).
+          </p>
           {!freeEligible && (
-            <p className="mt-3 text-xs text-zinc-500">
-              Add {formatGHS(STORE.freeDeliveryThreshold - total)} more for free delivery.
+            <p className="mt-2 text-xs text-zinc-500">
+              Add {formatGHS(DELIVERY.freeThreshold - total)} more for free delivery.
             </p>
           )}
           <div className="mt-4 flex justify-between border-t border-zinc-100 pt-4 text-base font-bold">
