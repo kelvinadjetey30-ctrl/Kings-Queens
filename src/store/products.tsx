@@ -3,7 +3,8 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { Product, SEED_PRODUCTS } from '@/data/products';
 
-const KEY = 'kq_products_v2';
+/** v3 = empty catalog (no demo products) */
+const KEY = 'kq_products_v3';
 
 type ProductsCtx = {
   products: Product[];
@@ -15,7 +16,7 @@ type ProductsCtx = {
   getFeatured: () => Product[];
   getFlash: () => Product[];
   byCategory: (cat: string) => Product[];
-  resetToSeed: () => void;
+  clearAll: () => void;
 };
 
 const ProductsContext = createContext<ProductsCtx | null>(null);
@@ -45,6 +46,9 @@ export function ProductsProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     try {
+      // Drop old demo catalogs
+      localStorage.removeItem('kq_products');
+      localStorage.removeItem('kq_products_v2');
       const raw = localStorage.getItem(KEY);
       if (raw) {
         const parsed = JSON.parse(raw) as Product[];
@@ -62,7 +66,11 @@ export function ProductsProvider({ children }: { children: React.ReactNode }) {
 
   const persist = useCallback((list: Product[]) => {
     setProducts(list);
-    localStorage.setItem(KEY, JSON.stringify(list));
+    try {
+      localStorage.setItem(KEY, JSON.stringify(list));
+    } catch (e) {
+      console.error('Could not save products (storage full?)', e);
+    }
   }, []);
 
   const addProduct = useCallback(
@@ -120,7 +128,7 @@ export function ProductsProvider({ children }: { children: React.ReactNode }) {
     (cat: string) => (cat === 'all' || !cat ? products : products.filter((p) => p.category === cat)),
     [products]
   );
-  const resetToSeed = useCallback(() => persist([...SEED_PRODUCTS]), [persist]);
+  const clearAll = useCallback(() => persist([]), [persist]);
 
   return (
     <ProductsContext.Provider
@@ -134,7 +142,7 @@ export function ProductsProvider({ children }: { children: React.ReactNode }) {
         getFeatured,
         getFlash,
         byCategory,
-        resetToSeed,
+        clearAll,
       }}
     >
       {children}
