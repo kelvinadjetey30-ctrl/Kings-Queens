@@ -2,7 +2,7 @@
 
 Ghana No.1 Premium Drip Store — **Drip For Kings and Queens**
 
-Next.js 14 · TypeScript · Tailwind · Auth required · MTN MoMo checkout · Admin product CRUD
+Next.js 14 · Auth required · Empty catalog (admin uploads) · Gallery image upload · MTN MoMo
 
 ## Quick start
 
@@ -11,40 +11,25 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) — visitors must **login or signup** first.
+Visitors must login/signup first. Shop starts **empty** until admin adds products.
 
-## Contact / MoMo (defaults)
+## Contact / MoMo
 
 | Field | Value |
 |-------|--------|
 | MoMo name | DOMINIC NII KORLEY BOTCHWAY |
-| MoMo number | 0260831202 |
-| WhatsApp | 0260831202 |
+| MoMo / WhatsApp / Phone | **0260931202** |
 | Email | thekingsandqueens3@gmail.com |
-| Phone | 0260831202 |
-
-Override via `.env.local` (see `.env.example`).
 
 ## Admin
 
 - Email: `admin@thekingsandqueens.com`
 - Password: `Admin@2024`
-- Products: add / edit / delete, set **main category** (shop filter) + **type** (subcategory for admin)
+- **Products** → Add product → **Choose from gallery** (phone/PC photos)
+- Set category so it appears under the right shop filter
 
 ## Categories (shop)
 
-1. Chains / Necklaces  
-2. Watches  
-3. Bracelets  
-4. Rings  
-5. Clothes  
-6. Shoes / Footwear  
-7. Caps / Headwear  
-8. Bags / Wallets  
-9. Eyewear / Belts / Others  
+Chains / Necklaces · Watches · Bracelets · Rings · Clothes · Shoes / Footwear · Caps / Headwear · Bags / Wallets · Eyewear / Belts / Others
 
-Delivery: **standard only** (Accra GHS 40 · Outside GHS 70 · free over GHS 500).
-
-## Deploy
-
-Import on Vercel, set env vars, deploy. Link domain when ready.
+Delivery: standard only (Accra GHS 40 · Outside GHS 70 · free over GHS 500).

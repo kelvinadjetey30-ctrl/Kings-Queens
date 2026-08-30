@@ -1,13 +1,14 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/store/auth';
 import { useProducts } from '@/store/products';
 import { CategoryId, CATEGORY_OPTIONS, SUBCATEGORIES, Product } from '@/data/products';
 import { formatGHS } from '@/lib/utils';
-import { ArrowLeft, Plus, Pencil, Trash2, X } from 'lucide-react';
+import { fileToCompressedDataUrl } from '@/lib/imageUpload';
+import { ArrowLeft, Plus, Pencil, Trash2, X, Upload, ImageIcon } from 'lucide-react';
 import { toast } from 'sonner';
 
 type FormState = {
@@ -29,7 +30,7 @@ const emptyForm = (): FormState => ({
   description: '',
   price: '',
   compareAt: '',
-  image: 'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=800&q=80',
+  image: '',
   featured: false,
   flash: false,
 });
@@ -52,12 +53,14 @@ function productToForm(p: Product): FormState {
 export default function AdminProductsPage() {
   const { isAdmin, loading, user } = useAuth();
   const router = useRouter();
-  const { products, addProduct, updateProduct, deleteProduct, resetToSeed } = useProducts();
+  const { products, addProduct, updateProduct, deleteProduct, clearAll } = useProducts();
+  const fileRef = useRef<HTMLInputElement>(null);
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<FormState>(emptyForm());
   const [filterCat, setFilterCat] = useState<string>('all');
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     if (!loading && (!user || !isAdmin)) router.replace('/login');
@@ -97,6 +100,22 @@ export default function AdminProductsPage() {
     }));
   };
 
+  const onPickFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    setUploading(true);
+    try {
+      const dataUrl = await fileToCompressedDataUrl(file);
+      setForm((f) => ({ ...f, image: dataUrl }));
+      toast.success('Image ready');
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Upload failed');
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const save = () => {
     const name = form.name.trim();
     const price = parseFloat(form.price);
@@ -108,45 +127,53 @@ export default function AdminProductsPage() {
       toast.error('Enter a valid price');
       return;
     }
+    if (!form.image.trim()) {
+      toast.error('Upload a product image from your gallery');
+      return;
+    }
     const compareAt = form.compareAt.trim() ? parseFloat(form.compareAt) : undefined;
     if (compareAt != null && (isNaN(compareAt) || compareAt < 0)) {
       toast.error('Invalid compare-at price');
       return;
     }
-    const image = form.image.trim() || emptyForm().image;
+    const image = form.image.trim();
     const catLabel = CATEGORY_OPTIONS.find((c) => c.id === form.category)?.name || form.category;
 
-    if (editingId) {
-      updateProduct(editingId, {
-        name,
-        category: form.category,
-        subcategory: form.subcategory || undefined,
-        description: form.description.trim(),
-        price,
-        compareAt,
-        image,
-        images: [image],
-        featured: form.featured,
-        flash: form.flash,
-      });
-      toast.success(`Updated — shows under ${catLabel}`);
-    } else {
-      addProduct({
-        name,
-        category: form.category,
-        subcategory: form.subcategory || undefined,
-        description: form.description.trim() || name,
-        price,
-        compareAt,
-        image,
-        images: [image],
-        tags: form.subcategory ? [form.subcategory] : [],
-        featured: form.featured,
-        flash: form.flash,
-      });
-      toast.success(`Added under ${catLabel}`);
+    try {
+      if (editingId) {
+        updateProduct(editingId, {
+          name,
+          category: form.category,
+          subcategory: form.subcategory || undefined,
+          description: form.description.trim(),
+          price,
+          compareAt,
+          image,
+          images: [image],
+          featured: form.featured,
+          flash: form.flash,
+        });
+        toast.success(`Updated — shows under ${catLabel}`);
+      } else {
+        addProduct({
+          name,
+          category: form.category,
+          subcategory: form.subcategory || undefined,
+          description: form.description.trim() || name,
+          price,
+          compareAt,
+          image,
+          images: [image],
+          tags: form.subcategory ? [form.subcategory] : [],
+          featured: form.featured,
+          flash: form.flash,
+        });
+        toast.success(`Added under ${catLabel} — buyers can see it now`);
+      }
+      closeModal();
+    } catch {
+      toast.error('Could not save (image may be too large). Try a smaller photo.');
     }
-    closeModal();
   };
 
   const remove = (p: Product) => {
@@ -170,21 +197,23 @@ export default function AdminProductsPage() {
         <div>
           <h1 className="text-3xl font-bold">Products</h1>
           <p className="text-sm text-zinc-500">
-            Main category = shop filter. Type (subcategory) is for admin detail only.
+            Upload from your gallery. Main category = shop filter. Empty until you add items.
           </p>
         </div>
         <div className="flex gap-2">
-          <button
-            onClick={() => {
-              if (confirm('Reset catalog to default seed products?')) {
-                resetToSeed();
-                toast.success('Reset to seed products');
-              }
-            }}
-            className="rounded-full border border-zinc-200 px-4 py-2 text-sm hover:bg-zinc-50"
-          >
-            Reset seed
-          </button>
+          {products.length > 0 && (
+            <button
+              onClick={() => {
+                if (confirm('Delete ALL products from the site?')) {
+                  clearAll();
+                  toast.success('Catalog cleared');
+                }
+              }}
+              className="rounded-full border border-red-200 px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+            >
+              Clear all
+            </button>
+          )}
           <button
             onClick={openAdd}
             className="inline-flex items-center gap-2 rounded-full bg-zinc-900 px-4 py-2 text-sm font-semibold text-white hover:bg-zinc-800"
@@ -235,7 +264,7 @@ export default function AdminProductsPage() {
             {filtered.length === 0 ? (
               <tr>
                 <td colSpan={6} className="px-4 py-12 text-center text-zinc-500">
-                  No products. Click &quot;Add product&quot; to create one.
+                  No products yet. Click <strong>Add product</strong> and upload from your gallery.
                 </td>
               </tr>
             ) : (
@@ -335,7 +364,7 @@ export default function AdminProductsPage() {
 
               <div>
                 <label className="mb-1 block text-xs font-medium text-zinc-500">
-                  Type / subcategory (admin listing)
+                  Type / subcategory
                 </label>
                 <select
                   value={form.subcategory}
@@ -388,17 +417,40 @@ export default function AdminProductsPage() {
               </div>
 
               <div>
-                <label className="mb-1 block text-xs font-medium text-zinc-500">Image URL</label>
+                <label className="mb-1 block text-xs font-medium text-zinc-500">
+                  Product image * (from your gallery)
+                </label>
                 <input
-                  value={form.image}
-                  onChange={(e) => setForm({ ...form, image: e.target.value })}
-                  className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm outline-none focus:border-gold"
-                  placeholder="https://..."
+                  ref={fileRef}
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  className="hidden"
+                  onChange={onPickFile}
                 />
-                {form.image && (
-                  <div className="relative mt-2 h-24 w-24 overflow-hidden rounded-lg bg-zinc-100">
+                <button
+                  type="button"
+                  disabled={uploading}
+                  onClick={() => fileRef.current?.click()}
+                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-zinc-300 bg-zinc-50 px-4 py-6 text-sm font-medium text-zinc-700 hover:border-gold hover:bg-gold/5 disabled:opacity-60"
+                >
+                  {uploading ? (
+                    'Compressing…'
+                  ) : (
+                    <>
+                      <Upload className="h-5 w-5" />
+                      {form.image ? 'Change photo' : 'Choose from gallery'}
+                    </>
+                  )}
+                </button>
+                {form.image ? (
+                  <div className="relative mt-3 h-40 w-full overflow-hidden rounded-xl bg-zinc-100">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={form.image} alt="" className="h-full w-full object-cover" />
+                    <img src={form.image} alt="Preview" className="h-full w-full object-contain" />
+                  </div>
+                ) : (
+                  <div className="mt-3 flex h-24 items-center justify-center gap-2 rounded-xl bg-zinc-50 text-xs text-zinc-400">
+                    <ImageIcon className="h-4 w-4" /> No image yet
                   </div>
                 )}
               </div>
@@ -432,7 +484,8 @@ export default function AdminProductsPage() {
               </button>
               <button
                 onClick={save}
-                className="flex-1 rounded-full bg-zinc-900 py-2.5 text-sm font-semibold text-white hover:bg-zinc-800"
+                disabled={uploading}
+                className="flex-1 rounded-full bg-zinc-900 py-2.5 text-sm font-semibold text-white hover:bg-zinc-800 disabled:opacity-60"
               >
                 {editingId ? 'Save changes' : 'Add product'}
               </button>
